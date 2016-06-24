@@ -15,20 +15,51 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <VideoView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/rosoku_on_center"
+            android:layout_gravity="center_horizontal|bottom"
+            android:visibility="visible"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="false" />
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/rosoku_off_center"
+            android:layout_gravity="center_horizontal|bottom"
+            android:visibility="invisible"
+            android:src="@drawable/rosoku_off" />
+
         <Button
-            android:layout_width="match_parent"
-            android:layout_height="884dp"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:id="@+id/wara"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:background="@drawable/wara" />
+            android:background="@drawable/wara"
+            android:visibility="visible" />
 
         <LinearLayout
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="150dp"
+            android:weightSum="1">
+
+            <Space
+                android:layout_width="260px"
+                android:layout_height="200px"
+                android:layout_weight="0.36" />
+
+            <ImageView
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:id="@+id/kugi_center"
+                android:src="@drawable/kugi2"
+                android:visibility="invisible" />
 
         </LinearLayout>
 
@@ -40,16 +71,59 @@
             android:layout_gravity="left|center_vertical">
 
             <Space
-                android:layout_width="260px"
+                android:layout_width="150dp"
                 android:layout_height="200px" />
 
             <ImageView
                 android:layout_width="125dp"
                 android:layout_height="125dp"
-                android:id="@+id/kugi1"
+                android:id="@+id/kugi_left"
                 android:src="@drawable/kugi2"
                 android:visibility="invisible" />
+
+            <Space
+                android:layout_width="260px"
+                android:layout_height="200px"
+                android:layout_weight="0.33" />
+
+            <ImageView
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:id="@+id/kugi_right"
+                android:src="@drawable/kugi2"
+                android:visibility="invisible" />
+
         </LinearLayout>
+
+        <VideoView
+            android:layout_width="190dp"
+            android:layout_height="480dp"
+            android:id="@+id/rosoku_on"
+            android:layout_gravity="left|bottom"
+            android:visibility="visible" />
+
+        <ImageView
+            android:layout_width="170dp"
+            android:layout_height="480dp"
+            android:id="@+id/rosoku_off"
+            android:layout_gravity="left|bottom"
+            android:visibility="invisible"
+            android:src="@drawable/rosoku_off" />
+
+        <VideoView
+            android:layout_width="190dp"
+            android:layout_height="480dp"
+            android:id="@+id/rosoku_on_left"
+            android:layout_gravity="right|bottom"
+            android:visibility="visible" />
+
+        <ImageView
+            android:layout_width="170dp"
+            android:layout_height="480dp"
+            android:id="@+id/rosoku_off_left"
+            android:layout_gravity="right|bottom"
+            android:visibility="invisible"
+            android:src="@drawable/rosoku_off" />
 
     </FrameLayout>
 
