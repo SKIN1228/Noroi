@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
@@ -21,10 +22,8 @@ import java.io.IOException;
 
 public class MainActivity extends Activity  {
     private static final int RESULT_PICK_IMAGEFILE = 1001;
-    private ImageView imageView;
     private Button button;
-    private TextView dcimPath;
-    private String getUri;
+    private MediaPlayer opendoor;
 
 
 
@@ -33,11 +32,15 @@ public class MainActivity extends Activity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        opendoor = MediaPlayer.create(this, R.raw.door);
+
         button = (Button)findViewById(R.id.button_setpicture);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // ACTION_OPEN_DOCUMENT is the intent to choose a file via the system's file browser.
+
+
+                opendoor.start();
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/*");
@@ -59,12 +62,9 @@ public class MainActivity extends Activity  {
             Uri uri = null;
             Intent intent = new Intent(MainActivity.this, NoroiActivity.class);
 
-
             if (resultData != null) {
                 uri = resultData.getData();
                 intent.putExtra("FaceData",uri.toString());
-                Log.i("", "Uri: " + uri.toString());
-
                 startActivity(intent);
 
             }
