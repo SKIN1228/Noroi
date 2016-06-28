@@ -2,27 +2,17 @@ package skin.example.com.rasberrypiled;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Environment;
-import android.os.ParcelFileDescriptor;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import java.io.FileDescriptor;
-import java.io.IOException;
-
 
 public class MainActivity extends Activity  {
     private static final int RESULT_PICK_IMAGEFILE = 1001;
     private Button button;
+    //ボタンを押した時用の効果音
     private MediaPlayer opendoor;
 
 
@@ -31,6 +21,8 @@ public class MainActivity extends Activity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //全画面表示
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         opendoor = MediaPlayer.create(this, R.raw.door);
 
@@ -50,10 +42,7 @@ public class MainActivity extends Activity  {
         });
     }
 
-    private String getGalleryPath() {
-        return Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/";
-    }
-
+    //取得した画像UriをNoroiActivityに渡す
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
 
@@ -71,14 +60,6 @@ public class MainActivity extends Activity  {
         }
     }
 
-    private Bitmap getBitmapFromUri(Uri uri) throws IOException {
-        ParcelFileDescriptor parcelFileDescriptor =
-                getContentResolver().openFileDescriptor(uri, "r");
-        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
-        parcelFileDescriptor.close();
-        return image;
-    }
 
 }
 

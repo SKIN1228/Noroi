@@ -23,9 +23,6 @@ public class HttpGetTask extends AsyncTask<Integer, Void, Void>{
     //タスク開始
     @Override
     protected void onPreExecute(){
-        //mDialog = new ProgressDialog(mParentActivity);
-        //mDialog.setMessage("");
-        //mDialog.show();
     }
 
     //メイン処理
@@ -38,7 +35,6 @@ public class HttpGetTask extends AsyncTask<Integer, Void, Void>{
     //タスク終了時
     @Override
     protected  void onPostExecute(Void result){
-        //mDialog.dismiss();
     }
 
     private String exec_get(){

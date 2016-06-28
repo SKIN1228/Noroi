@@ -4,15 +4,12 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
-/**
- * Created by SKIN on 2016/05/30.
- */
+
 public class LoudNess implements Runnable {
     private  OnReachedVolumeListener mListener;
     private boolean isRecording =true;
     private static final int SAMPLE_RATE=44100;
-    private short mBoarderVolume=12000;
-
+    private short mBoarderVolume=15000;//しきい値
 
     public void stop(){
         if (isRecording == true){
@@ -59,6 +56,7 @@ public class LoudNess implements Runnable {
         audioRecord.stop();
         audioRecord.release();
     }
+
     public interface OnReachedVolumeListener{
         void onReachedVolume(short volume);
     }

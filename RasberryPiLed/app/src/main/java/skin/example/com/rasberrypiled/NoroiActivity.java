@@ -9,15 +9,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
-import android.os.Vibrator;
-import android.provider.Settings;
-import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.Toast;
 import android.widget.VideoView;
-import android.os.Bundle;
-
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.Timer;
@@ -32,9 +28,8 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
     private int pel =off;
     private Timer mTimer = null;
     static int mTimeCheck=3000;//一回目の振動モータ停止時間
-    static int mTimeCheck2=6000;//二回目の振動モータ停止時間
-    private MediaPlayer kugiuchi;
-    private MediaPlayer mSuzumushi;
+    private MediaPlayer kugiuchi;//釘打ち効果音
+    private MediaPlayer mSuzumushi;//
     private MediaPlayer mDrodro;
     private LoudNess mLoudNess;//録音用
     private ImageView mRosokuOffLeft;
@@ -44,23 +39,35 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
     private ImageView mRosokuOffCenter;
     private VideoView mRosokuOnCenter;
     private Handler mHandler = new Handler();
-    private ImageView mFace;
-    private String mFaceUri;
+    private ImageView mFace;//顔表示用ImageView
+    private String mFaceUri;//Uri格納
+    private int mComplete=0;//初期化用変数
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_noroi);
+        //全画面表示
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //釘を打ち付けたときの効果音
         kugiuchi = MediaPlayer.create(this, R.raw.kugiuchi2);
+        //鈴虫のBGM
         mSuzumushi = MediaPlayer.create(this, R.raw.suzumushi);
+        //ヒュードロドロでお馴染みのBGM
         mDrodro = MediaPlayer.create(this, R.raw.dorodoro);
         //鈴虫のBGMを再生する。
         mSuzumushi.start();
 
 
-        //MainActivityで取得した画像を読み込んで藁人形の顔に貼り付ける
+
+        findViewById(R.id.kugi_left).setVisibility(View.INVISIBLE);
+        findViewById(R.id.kugi_right).setVisibility(View.INVISIBLE);
+        findViewById(R.id.kugi_center).setVisibility(View.INVISIBLE);
+
+
+        //MainActivityで取得した画像をUriで読み込んで、藁人形の顔に貼り付ける
         mFace = (ImageView)findViewById(R.id.face);
         Intent intent = getIntent();
         mFaceUri=intent.getStringExtra("FaceData");;
@@ -72,7 +79,7 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
         } catch (IOException e) {
                 e.printStackTrace();
         }
-
+        //動作スイッチ、蝋燭のBGMとイメージの定義
         View mSwitch =findViewById(R.id.wara);
         mSwitch.setOnClickListener(this);
         mRosokuOnLeft = (VideoView) findViewById(R.id.rosoku_on);
@@ -86,25 +93,27 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
 
 
     }
+    //クリックされた時の処理
     @Override
     public void onClick(View v){
+
         switch(v.getId()) {
             case R.id.wara:
+                //カウントが3以上なら、処理をしない
                 if (mCount == 3) {
                     break;
                 } else {
-                    mCount++;
+                    mCount++;//カウンターを回す
 
-
-
-                    if (mCount == 1) {
+                    //一回ボタンを押したら、振動モータを3秒間動作させる
+                    if (mCount == 1&&mComplete==0) {
                         mot = on;
                         findViewById(R.id.kugi_left).setVisibility(View.VISIBLE);
                         mRosokuOffLeft.setVisibility(View.INVISIBLE);
                         kugiuchi.start();
                         mRosokuOnLeft.setVideoPath("android.resource://skin.example.com.rasberrypiled/" + R.raw.rosoku_on);
                         mRosokuOnLeft.start();
-
+                        //動画が停止したら、シークバーを最初に戻して再度スタート
                         mRosokuOnLeft.setOnCompletionListener(new MediaPlayer.OnCompletionListener(){
                             @Override
                             public void onCompletion(MediaPlayer mp) {
@@ -114,22 +123,30 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
                                 mRosokuOnLeft.start();
                             }
                         });
+
+                        //振動モータのTimer制御
                        mTimer = new Timer(true);
                         mTimer.schedule(new TimerTask() {
                             @Override
                             public void run() {
                                 mot = off;
+                                HttpGetTask task = new HttpGetTask(NoroiActivity.this);
+                                task.execute(pel,mot);
                             }
+
 
                         }, mTimeCheck);
 
+                        //一回ボタンを押したら、振動モータを3秒間動作させ、ペルチェ素子を動作させる
                     } else if (mCount == 2) {
                         pel = on;
+                        mot = on;
                         findViewById(R.id.kugi_right).setVisibility(View.VISIBLE);
                         mRosokuOffRight.setVisibility(View.INVISIBLE);
                         kugiuchi.start();
                         mRosokuOnRight.setVideoPath("android.resource://skin.example.com.rasberrypiled/" + R.raw.rosoku_on);
                         mRosokuOnRight.start();
+                        //動画が停止したら、シークバーを最初に戻して再度スタート
                         mRosokuOnLeft.setOnCompletionListener(new MediaPlayer.OnCompletionListener(){
                             @Override
                             public void onCompletion(MediaPlayer mp) {
@@ -139,19 +156,21 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
                                 // 再生開始
                                 mRosokuOnLeft.start();
                                 mRosokuOnRight.start();
-
                             }
-
                         });
+
+                        //振動モータのTimer制御
                         mTimer = new Timer(true);
                         mTimer.schedule(new TimerTask() {
                             @Override
                             public void run() {
                                 mot = off;
+                                HttpGetTask task = new HttpGetTask(NoroiActivity.this);
+                                task.execute(pel,mot);
 
                             }
 
-                        }, mTimeCheck2);
+                        }, mTimeCheck);
 
                     } else if (mCount == 3) {
                         mot = on;
@@ -164,6 +183,7 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
                         kugiuchi.start();
                         mRosokuOnCenter.setVideoPath("android.resource://skin.example.com.rasberrypiled/" + R.raw.rosoku_on);
                         mRosokuOnCenter.start();
+                        //動画が停止したら、シークバーを最初に戻して再度スタート
                         mRosokuOnLeft.setOnCompletionListener(new MediaPlayer.OnCompletionListener(){
                             @Override
                             public void onCompletion(MediaPlayer mp) {
@@ -178,23 +198,31 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
 
                             }
                         });
+                        //録音開始
                         startRecord();
+                    }
+                    //一度釘を3回刺して息で消したら、次に藁人形をタップしたときにタイトルに戻る。
+                    if(mComplete==1){
+                        Intent intent = new Intent(NoroiActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        mSuzumushi.stop();
+                        mComplete=off;
                     }
                     break;
                 }
         }
 
-        HttpGetTask task = new HttpGetTask(this);
+        HttpGetTask task = new HttpGetTask(NoroiActivity.this);
         task.execute(pel,mot);
     }
 
+    //録音がスタートしたら呼び出し
     private void startRecord() {
 
         mLoudNess = new LoudNess();
         mLoudNess.setOnReachedVolumeListener(
                 new	LoudNess.OnReachedVolumeListener() {
                     public void onReachedVolume(final short volume) {
-                        // TODO 自動生成されたメソッド・スタブ
                         mHandler.post(new Runnable() {
                             public void run() {
                                 appendTextView(volume);
@@ -210,14 +238,20 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
         pel=off;
         mot=off;
         mCount=off;
+        mComplete=on;
+        //ヒュードロドロのBGMをストップさせる
         mDrodro.stop();
+        //消えた蝋燭の画像を表示する
         mRosokuOffLeft.setVisibility(View.VISIBLE);
         mRosokuOffRight.setVisibility(View.VISIBLE);
         mRosokuOffCenter.setVisibility(View.VISIBLE);
         HttpGetTask task = new HttpGetTask(this);
         task.execute(pel,mot);
+        //録音を停止する
         mLoudNess.stop();
     }
+
+    //uriからBitMap化する
     private Bitmap getBitmapFromUri(Uri uri) throws IOException {
         ParcelFileDescriptor parcelFileDescriptor =
                 getContentResolver().openFileDescriptor(uri, "r");
@@ -226,6 +260,4 @@ public class NoroiActivity extends Activity implements View.OnClickListener {
         parcelFileDescriptor.close();
         return image;
     }
-
-
 }
